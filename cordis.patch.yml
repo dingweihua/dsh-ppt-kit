@@ -1,0 +1,32 @@
+# dsh-ppt-kit — profile patch layer.
+#
+# Two rows:
+#   ppt-kit                  this package (skill provider + ppt_kit_doctor tool)
+#   ppt-kit-mcp-powerpoint   the KitchenSink4PPT MCP server
+#
+# `insert:` is required. An `id` + `name` entry WITHOUT `insert` only patches a
+# row that already exists; DSH logs 'patch: entry "..." not found' and skips it.
+#
+# The MCP row deliberately uses plain `uvx` so the published patch stays
+# portable. If that fails on the host (sandboxed home, or a GUI-launched app
+# whose PATH lacks uv), replace `command` with the absolute path to this
+# package's bin/ks4ppt-mcp.sh and drop `args`. Call the ppt_kit_doctor tool and
+# it prints that exact line for your machine.
+#
+# `failOnStartupError` is intentionally left unset (false): a host without uv
+# must still start DSH, with the PowerPoint tools absent and the reason reported
+# by ppt_kit_doctor.
+
+- insert:
+    - id: ppt-kit
+      name: dsh-ppt-kit
+
+    - id: ppt-kit-mcp-powerpoint
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: powerpoint
+        transport: stdio
+        command: uvx
+        args:
+          - kitchensink4ppt
+        toolCallTimeoutMs: 120000
